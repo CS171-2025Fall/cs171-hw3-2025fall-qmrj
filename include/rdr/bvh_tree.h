@@ -133,7 +133,7 @@ typename BVHTree<_>::IndexType BVHTree<_>::build(
   for (IndexType span_index = span_left; span_index < span_right; ++span_index)
     prebuilt_aabb.unionWith(nodes[span_index].getAABB());
 
-  // TODO: setup the stop criteria
+  // TODO(HW3): setup the stop criteria
   //
   // You should fill in the stop criteria here.
   //
@@ -173,7 +173,7 @@ use_median_heuristic:
     // after which, all centroids in [span_left, split) are LT than right
     // clang-format off
 
-    // TODO: implement the median split here
+    // TODO(HW3): implement the median split here
     //
     // You should sort the nodes in [span_left, span_right) according to
     // their centroid's `dim`-th dimension, such that all nodes in
