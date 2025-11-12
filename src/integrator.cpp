@@ -108,9 +108,8 @@ Vec3f IntersectionTestIntegrator::Li(
       // @see SurfaceInteraction::spawnRay
       //
       // You should update ray = ... with the spawned ray
-      Vec3f new_direction =
-          interaction.bsdf->sample(interaction, sampler, nullptr);
-      ray = interaction.spawnRay(new_direction);
+      interaction.bsdf->sample(interaction, sampler, nullptr);
+      ray = interaction.spawnRay(interaction.wi);
       continue;
     }
 
