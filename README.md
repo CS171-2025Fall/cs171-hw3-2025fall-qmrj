@@ -1,7 +1,7 @@
 # Assignment 4: Global Illumination
 
-Name:  
-Student ID:  
+Name: 钱嘉烨 (Qian Jiaye)
+Student ID: 2022533118
 
 **Please write your Chinese name and your student ID in this README.**
 

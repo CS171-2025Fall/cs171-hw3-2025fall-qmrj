@@ -58,3 +58,12 @@ compile_commands.json
 *.old
 *.tar.gz
 data/sphere.obj
+
+# LaTeX build files
+/report/*.aux
+/report/*.log
+/report/*.out
+/report/*.synctex.gz
+/report/*.fdb_latexmk
+/report/*.fls
+/report/*.synctex(busy)
