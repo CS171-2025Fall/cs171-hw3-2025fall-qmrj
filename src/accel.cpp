@@ -43,7 +43,34 @@ bool AABB::intersect(const Ray &ray, Float *t_in, Float *t_out) const {
   //    for getting the inverse direction of the ray.
   // @see Min/Max/ReduceMin/ReduceMax
   //    for vector min/max operations.
-  UNIMPLEMENTED;
+  AssertAllValid(ray.direction, ray.origin);
+  AssertAllNormalized(ray.direction);
+
+  auto inv_ray_dir = ray.safe_inverse_direction;
+  Float ty_in, ty_out, tz_in, tz_out;
+  *t_in  = (low_bnd.x - ray.origin.x) * inv_ray_dir.x;
+  *t_out = (upper_bnd.x - ray.origin.x) * inv_ray_dir.x;
+  if (inv_ray_dir.x < 0) std::swap(*t_in, *t_out);
+
+  ty_in  = (low_bnd.y - ray.origin.y) * inv_ray_dir.y;
+  ty_out = (upper_bnd.y - ray.origin.y) * inv_ray_dir.y;
+  if (inv_ray_dir.y < 0) std::swap(ty_in, ty_out);
+
+  if (*t_in > ty_out || ty_in > *t_out) return false;
+
+  if (ty_in > *t_in) *t_in = ty_in;
+  if (ty_out < *t_out) *t_out = ty_out;
+
+  tz_in  = (low_bnd.z - ray.origin.z) * inv_ray_dir.z;
+  tz_out = (upper_bnd.z - ray.origin.z) * inv_ray_dir.z;
+  if (inv_ray_dir.z < 0) std::swap(tz_in, tz_out);
+
+  if (*t_in > tz_out || tz_in > *t_out) return false;
+
+  if (tz_in > *t_in) *t_in = tz_in;
+  if (tz_out < *t_out) *t_out = tz_out;
+
+  return true;
 }
 
 /* ===================================================================== *
@@ -91,11 +118,13 @@ bool TriangleIntersect(Ray &ray, const uint32_t &triangle_index,
   // Useful Functions:
   // You can use @see Cross and @see Dot for determinant calculations.
 
-  InternalVecType _s  = ray.origin - v0;
-  InternalVecType _e1 = v1 - v0;
-  InternalVecType _e2 = v2 - v0;
-  InternalVecType _s1 = Cross(dir, _e2);
-  InternalVecType _s2 = Cross(_s, _e1);
+  InternalVecType _s      = ray.origin - v0;
+  InternalVecType _e1     = v1 - v0;
+  InternalVecType _e2     = v2 - v0;
+  InternalVecType _area_v = Cross(_e1, _e2);
+  if (Dot(_area_v, _area_v) < 1e-12) return false;  // degenerate triangles
+  InternalVecType _s1        = Cross(dir, _e2);
+  InternalVecType _s2        = Cross(_s, _e1);
   InternalScalarType _factor = Dot(_s1, _e1);
   InternalScalarType t       = Dot(_s2, _e2) / _factor;
   InternalScalarType u       = Dot(_s1, _s) / _factor;
