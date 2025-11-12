@@ -59,7 +59,7 @@ bool AABB::intersect(const Ray &ray, Float *t_in, Float *t_out) const {
 
   if (*t_in > ty_out || ty_in > *t_out) return false;
 
-  *t_in = std::max(*t_in, ty_in);
+  *t_in  = std::max(*t_in, ty_in);
   *t_out = std::min(*t_out, ty_out);
 
   tz_in  = (low_bnd.z - ray.origin.z) * inv_ray_dir.z;
