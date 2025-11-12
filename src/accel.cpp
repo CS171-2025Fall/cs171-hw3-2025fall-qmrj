@@ -46,8 +46,9 @@ bool AABB::intersect(const Ray &ray, Float *t_in, Float *t_out) const {
   AssertAllValid(ray.direction, ray.origin);
   AssertAllNormalized(ray.direction);
 
-  auto inv_ray_dir = ray.safe_inverse_direction;
+  const Vec3f &inv_ray_dir = ray.safe_inverse_direction;
   Float ty_in, ty_out, tz_in, tz_out;
+
   *t_in  = (low_bnd.x - ray.origin.x) * inv_ray_dir.x;
   *t_out = (upper_bnd.x - ray.origin.x) * inv_ray_dir.x;
   if (inv_ray_dir.x < 0) std::swap(*t_in, *t_out);
@@ -58,8 +59,8 @@ bool AABB::intersect(const Ray &ray, Float *t_in, Float *t_out) const {
 
   if (*t_in > ty_out || ty_in > *t_out) return false;
 
-  if (ty_in > *t_in) *t_in = ty_in;
-  if (ty_out < *t_out) *t_out = ty_out;
+  *t_in = std::max(*t_in, ty_in);
+  *t_out = std::min(*t_out, ty_out);
 
   tz_in  = (low_bnd.z - ray.origin.z) * inv_ray_dir.z;
   tz_out = (upper_bnd.z - ray.origin.z) * inv_ray_dir.z;
@@ -67,8 +68,8 @@ bool AABB::intersect(const Ray &ray, Float *t_in, Float *t_out) const {
 
   if (*t_in > tz_out || tz_in > *t_out) return false;
 
-  if (tz_in > *t_in) *t_in = tz_in;
-  if (tz_out < *t_out) *t_out = tz_out;
+  *t_in  = std::max(*t_in, tz_in);
+  *t_out = std::min(*t_out, tz_out);
 
   return true;
 }
