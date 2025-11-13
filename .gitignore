@@ -59,9 +59,6 @@ compile_commands.json
 *.tar.gz
 data/sphere.obj
 
-
-/gt/
-
 # LaTeX build files
 /report/*.aux
 /report/*.log
