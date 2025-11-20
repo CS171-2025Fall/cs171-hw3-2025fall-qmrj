@@ -1,4 +1,4 @@
-# Assignment 4: Global Illumination
+# Assignment 3: Basic Ray Tracing
 
 Name: 钱嘉烨 (Qian Jiaye)
 Student ID: 2022533118

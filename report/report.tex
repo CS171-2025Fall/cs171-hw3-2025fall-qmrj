@@ -23,8 +23,10 @@
 }
 \lstset{basicstyle=\ttfamily}
 
+\newcommand{\seqtexttt}[1]{{\ttfamily \hyphenchar\font=`\- #1}}
+
 % Title portion
-\title{Assignment 4:\\ {Global Illumination}}
+\title{Assignment 3:\\ {Basic Ray Tracing}}
 
 \author{Name: 钱嘉烨 (Qian Jiaye)\quad \\ student number: 2022533118\
 \\email: \quad \texttt{qianjy2022@shanghaitech.edu.cn}}
@@ -50,8 +52,55 @@
 \end{figure}
 
 \section{Introduction}
+
+In this assignment, I implemented basic ray tracing with a direct lighting function with diffuse BRDF. Correct ray refraction for perfect refraction material is also been implemented. To trace the ray, ray-triangle intersection (Sec.~\ref{ray-triangle}) and ray-AABB intersection (Sec.~\ref{ray-aabb}) has been implemented first. Then I implemented the BVH search tree construction to make the ray tracing more efficient (Sec.~\ref{bvh}). Finally, I implemented the \seqtexttt{IntersectionTestIntegrator} (Sec.~\ref{integrator}) and \seqtexttt{PerfectRefraction} (Sec.~\ref{perfect-refract}) for basic ray tracing validation.
+
 \section{Implementation Details}
+
+\subsection{Ray-Triangle Intersection}
+\label{ray-triangle}
+
+In the implementation, I used the linear-algebra-based method to compute the intersection point between a ray and a triangle by barycentric interpolation of the triangle. The formula is as follows: given the triangle vertices $\bm{v}_0, \bm{v}_1, \bm{v}_2$, the ray origin $\bm{o}$ and direction $\bm{d}$, we solve for parameters $u$, $v$, and $t$ such that
+\[
+    (1 - u - v)\,\bm{v}_0 + u\,\bm{v}_1 + v\,\bm{v}_2 = \bm{o} + t\,\bm{d}\text{.}
+\]
+Then the final parameters $u$, $v$, and $t$ can be formulated as
+\[
+    \begin{bmatrix}
+        t \\ u \\ v
+    \end{bmatrix}
+    =
+    \frac{1}{\bm{s}_1 \cdot \bm{e}_1}
+    \begin{bmatrix}
+        \bm{s}_2 \cdot \bm{e}_2 \\
+        \bm{s}_1 \cdot \bm{s}   \\
+        \bm{s}_2 \cdot \bm{d}
+    \end{bmatrix}
+\]
+where $\bm{s} = \bm{o}-\bm{v}_0$, $\bm{e}_1 = \bm{v}_1-\bm{v}_0$, $\bm{e}_2 = \bm{v}_2-\bm{v}_0$, $\bm{s}_1 = \bm{d}\times\bm{e}_2$, and $\bm{s}_2 = \bm{s}\times\bm{e}_1$.
+Finally, the program checks whether $u$, $v$, and $t$ are valid to determine if the ray intersects the triangle. In particular, the implementation also tests whether $\|\bm{e}_1\times\bm{e}_2\|_2$ is zero to detect degenerate triangles; if so, the ray is considered to never intersect that triangle.
+
+\subsection{Ray-AABB Intersection}
+\label{ray-aabb}
+
+To determine whether a ray intersects an Axis-Aligned Bounding Box (AABB), the implementation first computes the parametric intersection distances between the ray and the six bounding planes of the AABB. Specifically, for each axis ($x$, $y$, and $z$), the entry and exit points of the ray with respect to the minimum and maximum bounds of the box are calculated. These values are then compared to identify the overall interval in which the ray may remain inside the box. See {\small\url{https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection.html}} for more details.
+
+\subsection{BVH Construction}
+\label{bvh}
+
+The construction of a Bounding Volume Hierarchy (BVH) is a recursive process. First, a bounding box is computed that encloses all objects in the current region. If the recursion depth exceeds a predefined threshold or the number of objects falls below a certain limit, a leaf node is created, signaling the termination of recursion. Otherwise, the bounding box's longest axis is chosen as the splitting direction, and the objects are divided at the median of their centroids along this axis. The two resulting subsets are then used recursively to construct the left and right subtrees. Finally, the bounding boxes of the subtrees are merged and stored as the bounding box of the current internal node.
+
+\subsection{Intersection Test Integrator}
+\label{integrator}
+
+To perform rendering, we sample several points on each pixel and construct rays emitted from the camera center. After projection computation (see Sec.~\ref{perfect-refract}), each ray eventually intersects with an object. Since we are rendering perfectly diffuse objects and both the intersection point and the new ray from the intersection to the light source are known, we can directly compute the cosine of the angle between the surface normal at the intersection and the new ray. This gives us the reflectance, allowing us to finally determine the color contribution of the sample.
+
+\subsection{Ray Tracing for Perfect Refraction}
+\label{perfect-refract}
+
+To simulate perfectly refractive objects, we perform specific computations during ray tracing. Whenever a ray intersects a perfectly refractive object, we update the original ray to a new ray that originates from the intersection point, with its direction determined according to the refraction. If the incident ray cannot undergo refraction, we instead account for the possibility of total internal reflection.
 \section{Results}
 
-\end{document}
+The result for direct illumination is shown in Fig.~\ref{fig:direct-illu}, which shows correct diffuse shading. The result for perfect refractive materials is shown in Fig.~\ref{fig:refract}, which shows correct refraction effects.
 
+\end{document}
